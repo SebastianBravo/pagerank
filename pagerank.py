@@ -132,10 +132,15 @@ def iterate_pagerank(corpus, damping_factor):
     while repeat:
         for page in corpus.keys():
             probability2 = 0
-            pages_linked = linked(corpus, page)
+            links_in = linked_in(corpus, page)
 
-            for link in pages_linked:
-                num_links = len(corpus[link])
+            for link in links_in:
+
+                if len(corpus[link]) != 0:
+                    num_links = len(corpus[link])
+                else:
+                    num_links = len(corpus.keys())
+
                 probability2 += ranks[link] / num_links
 
             probability2 = damping_factor * probability2 
@@ -144,21 +149,23 @@ def iterate_pagerank(corpus, damping_factor):
             changes.append(abs(new_rank - ranks[page]))
             ranks[page] = new_rank
 
-        if all(change <= 0.001 for change in changes):
-            repeat = False
-        else:
+        if any(change > 0.001 for change in changes):
             changes = []
+        else:
+            repeat = False
 
     return ranks
 
 
-def linked(corpus, page):
+def linked_in(corpus, page):
 
-    if len(corpus[page]) == 0:
-        return list(corpus.keys())
-    else:
-        return [x for x in corpus.keys() if page in corpus[x]]
+    links = []
 
+    for p in corpus.keys():
+        if page in corpus[p] or len(corpus[p]) == 0:
+            links.append(p)
+
+    return links
 
 if __name__ == "__main__":
     main()
