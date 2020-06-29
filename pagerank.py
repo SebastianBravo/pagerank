@@ -58,12 +58,16 @@ def transition_model(corpus, page, damping_factor):
     linked to by `page`. With probability `1 - damping_factor`, choose
     a link at random chosen from all pages in the corpus.
     """
+    # Initialize an empty dictionary to keep the probability distribution.
     distribution = {}
     
+    # Variables to keep track of number of pages and pages linked.
     N_pages = len(corpus.keys())
     pages_linked = corpus[page]
 
-
+    # If there isn't page linked, the probability is the same for each
+    # page. In other case, it depends on the damping factor and the 
+    # number of pages linked.
     if len(pages_linked) == 0:
         probability = 1/N_pages
         for page in corpus.keys():
@@ -86,20 +90,27 @@ def sample_pagerank(corpus, damping_factor, n):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
+    # Variable to keep track of the current sample, it starts being
+    # completely random.
     sample = random.choice(list(corpus.keys()))
+
+    # Initialize a list of samples with the first sample. 
     samples = [sample]
 
+    # Initialize an empty dictionary to keep the rank of each page.
     ranks = {}
 
+    # Add n-1 samples to the list, each sample is based on a 
+    # transition model.
     for sample_n in range(n-1):
         distribution = transition_model(corpus, sample, damping_factor)
         pages_linked = list(distribution.keys())
         probabilities = list(distribution.values())
-
         sample = numpy.random.choice(pages_linked, p=probabilities)
-
         samples.append(sample)
 
+    # Calculete the page rank for each page based on the frequency  
+    # of each page in the samples list.
     for page in corpus.keys():
         page_rank = samples.count(page) / n
         ranks[page] = page_rank
@@ -116,56 +127,79 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
+    # Initialize an empty dictionary to keep the rank of each page.
     ranks = {}
 
+    # Variable to keep track of the number of pages.
     N_pages = len(corpus.keys())
-    repeat = True
 
+    # Variable to keep track of whether iterating or not.
+    iterate = True
+
+    # Variables to kepp track of the probabilities. 
     probability1 = (1 - damping_factor) / N_pages
     probability2 = 0
 
+    # Initialize an empty list to keep track of the changes of the
+    # page rank for each page.
     changes = []
 
+    # ALl the pages starts whith the same page rank 
     for page in corpus.keys():
         ranks[page] = 1 / N_pages
 
-    while repeat:
+    # Itereate until no PageRank value changes by more than 0.001
+    while iterate:
+
+        # Loop throug all the pages and initialize a list with the 
+        # pages that link to each page
         for page in corpus.keys():
             probability2 = 0
-            links_in = linked_in(corpus, page)
+            links_in = links_to_page(corpus, page)
 
+            # Calculate the probabilitie of going to the page in
+            # each link
             for link in links_in:
-
                 if len(corpus[link]) != 0:
                     num_links = len(corpus[link])
                 else:
                     num_links = len(corpus.keys())
-
                 probability2 += ranks[link] / num_links
 
             probability2 = damping_factor * probability2 
 
+            # Calculate the new page rank
             new_rank = probability1 + probability2
+
+            # Calculate how much the rank changed from the previous rank
             changes.append(abs(new_rank - ranks[page]))
+
+            # Update the page rank
             ranks[page] = new_rank
 
+        # Decides whether to continue iterating or not
         if any(change > 0.001 for change in changes):
             changes = []
         else:
-            repeat = False
+            iterate = False
 
     return ranks
 
 
-def linked_in(corpus, page):
-
-    links = []
+def links_to_page(corpus, page):
+    """
+    Returns a list of pages that link to a certain page.
+    If a page has no links it is interpreted as having 
+    one link for every page in the corpus (including itself).
+    """
+    links_to_page = []
 
     for p in corpus.keys():
         if page in corpus[p] or len(corpus[p]) == 0:
-            links.append(p)
+            links_to_page.append(p)
 
-    return links
+    return links_to_page
+
 
 if __name__ == "__main__":
     main()

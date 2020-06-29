@@ -1,5 +1,4 @@
 from pagerank import *
-import random
 
 DAMPING = 0.85
 SAMPLES = 10000
@@ -10,4 +9,3 @@ ranks = sample_pagerank(corpus, DAMPING, SAMPLES)
 print(ranks)
 ranks = iterate_pagerank(corpus, DAMPING)
 print(ranks)
-
