@@ -59,7 +59,7 @@ def transition_model(corpus, page, damping_factor):
     a link at random chosen from all pages in the corpus.
     """
     # Initialize an empty dictionary to keep the probability distribution.
-    distribution = {}
+    distribution = dict()
     
     # Variables to keep track of number of pages and pages linked.
     N_pages = len(corpus.keys())
@@ -98,7 +98,7 @@ def sample_pagerank(corpus, damping_factor, n):
     samples = [sample]
 
     # Initialize an empty dictionary to keep the rank of each page.
-    ranks = {}
+    ranks = dict()
 
     # Add n-1 samples to the list, each sample is based on a 
     # transition model.
@@ -128,7 +128,7 @@ def iterate_pagerank(corpus, damping_factor):
     PageRank values should sum to 1.
     """
     # Initialize an empty dictionary to keep the rank of each page.
-    ranks = {}
+    ranks = dict()
 
     # Variable to keep track of the number of pages.
     N_pages = len(corpus.keys())
