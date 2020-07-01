@@ -150,6 +150,8 @@ def iterate_pagerank(corpus, damping_factor):
 
     # Itereate until no PageRank value changes by more than 0.001
     while iterate:
+        # Initialize a list to keep new ranks
+        new_ranks = []
 
         # Loop throug all the pages and initialize a list with the 
         # pages that link to each page
@@ -174,12 +176,16 @@ def iterate_pagerank(corpus, damping_factor):
             # Calculate how much the rank changed from the previous rank
             changes.append(abs(new_rank - ranks[page]))
 
-            # Update the page rank
-            ranks[page] = new_rank
+            # Update new ranks list
+            new_ranks.append(new_rank)
 
-        # Decides whether to continue iterating or not
-        if any(change > 0.001 for change in changes):
+        # Decides whether to continue iterating or not and update page ranks
+        if any(change >= 0.001 for change in changes):
             changes = []
+            i = 0
+            for page in corpus.keys():
+                ranks[page] = new_ranks[i]
+                i += 1 
         else:
             iterate = False
 
